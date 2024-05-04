@@ -66,16 +66,39 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
-        # Useful information you can extract from a GameState (pacman.py)
+        # Obtener el estado sucesor tras realizar la acción
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # Puntuación del estado sucesor
+        score = successorGameState.getScore()
 
+        # Calcular la distancia a la comida más cercana
+        foodDistances = [util.manhattanDistance(newPos, food) for food in newFood.asList()]
+        minFoodDistance = min(foodDistances) if foodDistances else 0
+
+        # Calcular la distancia a los fantasmas y ajustar el score basado en el estado de miedo
+        ghostDistances = [util.manhattanDistance(newPos, ghostState.getPosition()) for ghostState in newGhostStates]
+        ghostPenalty = 0
+        for dist, scaredTime in zip(ghostDistances, newScaredTimes):
+            if dist < 2 and scaredTime == 0:  # Si un fantasma no asustado está muy cerca
+                ghostPenalty += 300  # Gran penalización para evitar fantasmas no asustados
+
+        # Ajustar la puntuación basada en la distancia a la comida
+        score += 10 * (1 / (minFoodDistance + 1))  # Incrementar la atracción hacia la comida
+
+        # Considerar la penalización por fantasmas solo si es relevante
+        if ghostPenalty > 0:
+            score -= ghostPenalty
+        else:
+            score += 50  # Un pequeño incentivo para moverse si no hay peligro inminente
+
+        return score
+    
+    
 def scoreEvaluationFunction(currentGameState):
     """
       This default evaluation function just returns the score of the state.
