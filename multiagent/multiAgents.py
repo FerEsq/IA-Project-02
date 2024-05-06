@@ -163,12 +163,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def maxValue(self, gameState, depth):
         actions = gameState.getLegalActions(0)
         if gameState.isWin() or gameState.isLose() or depth == self.depth or len(actions) == 0:
-            return (self.evaluationFunction(gameState),None)
+            return (self.evaluationFunction(gameState), None)
         value = float("-inf")
         bestAction = None
         for action in actions:
-            v = self.minValue(gameState.getNextState(0, action), 1, depth)
-            v = v[0]
+            v = self.minValue(gameState.getNextState(0, action), 1, depth)[0]
             if v > value:
                 value = v
                 bestAction = action
@@ -182,10 +181,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         bestAction = None
         for action in actions:
             if agentIndex == gameState.getNumAgents() - 1:
-                v = self.maxValue(gameState.getNextState(agentIndex, action), depth + 1)
+                v = self.maxValue(gameState.getNextState(agentIndex, action), depth + 1)[0]
             else:
-                v = self.minValue(gameState.getNextState(agentIndex, action), agentIndex + 1, depth)
-            v = v[0]
+                v = self.minValue(gameState.getNextState(agentIndex, action), agentIndex + 1, depth)[0]
             if v < value:
                 value = v
                 bestAction = action
@@ -201,7 +199,42 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        alpha = float("-inf")
+        beta = float("inf")
+        value = float("-inf")
+        bestAction = None
+        for action in gameState.getLegalActions(0):
+            v = self.minValue(gameState.getNextState(0, action), alpha, beta, 0, 1)
+            if v > value:
+                value = v
+                bestAction = action
+            alpha = max(alpha, value)
+        return bestAction
+
+    def maxValue(self, gameState, alpha, beta, depth):
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:
+                return self.evaluationFunction(gameState)
+            value = float("-inf")
+            for action in gameState.getLegalActions(0):
+                value = max(value, self.minValue(gameState.getNextState(0, action), alpha, beta, depth, 1))
+                if value > beta:
+                    return value
+                alpha = max(alpha, value)
+            return value
+
+    def minValue(self, gameState, alpha, beta, depth, agentIndex):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+        value = float("inf")
+        for action in gameState.getLegalActions(agentIndex):
+            if agentIndex == gameState.getNumAgents() - 1:
+                value = min(value, self.maxValue(gameState.getNextState(agentIndex, action), alpha, beta, depth + 1))
+            else:
+                value = min(value, self.minValue(gameState.getNextState(agentIndex, action), alpha, beta, depth, agentIndex + 1))
+            if value < alpha:
+                return value
+            beta = min(beta, value)
+        return value
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -216,7 +249,33 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        value = float("-inf")
+        bestAction = None
+        for action in gameState.getLegalActions(0):
+            v = self.expectedValue(gameState.getNextState(0, action), 0, 1)
+            if v > value:
+                value = v
+                bestAction = action
+        return bestAction
+    
+    def maxValue(self, gameState, depth):
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:
+                return self.evaluationFunction(gameState)
+            value = float("-inf")
+            for action in gameState.getLegalActions(0):
+                value = max(value, self.expectedValue(gameState.getNextState(0, action), depth, 1))
+            return value
+
+    def expectedValue(self, gameState, depth, agentIndex):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+        value = 0
+        for action in gameState.getLegalActions(agentIndex):
+            if agentIndex == gameState.getNumAgents() - 1:
+                value += self.maxValue(gameState.getNextState(agentIndex, action), depth + 1)
+            else:
+                value += self.expectedValue(gameState.getNextState(agentIndex, action), depth, agentIndex + 1)
+        return value / len(gameState.getLegalActions(agentIndex))
 
 def betterEvaluationFunction(currentGameState):
     """
