@@ -18,7 +18,7 @@ start_state: "root"
 win_states: "A C"
 lose_states: "B D"
 
-successors: """
+children: """
 root pacLeft minLeft
 root pacRight minRight
 minLeft gLeft A

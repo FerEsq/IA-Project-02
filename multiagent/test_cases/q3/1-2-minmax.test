@@ -25,7 +25,7 @@ start_state: "a"
 win_states: "d1 d2 d3 d4 dx"
 lose_states: ""
 
-successors: """
+children: """
 a Left b1
 a Right b2
 b1 Left c1
