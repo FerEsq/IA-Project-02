@@ -66,15 +66,15 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
-        # Useful information you can extract from a GameState (pacman.py)
-        # Obtener el estado sucesor tras realizar la acción
-        childGameState = currentGameState.getPacmanNextState(action)
-        newPos = childGameState.getPacmanPosition()
-        newFood = childGameState.getFood()
-        newGhostStates = childGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
+        # Genera el estado sucesor al realizar la acción propuesta
+        childGameState = currentGameState.getPacmanNextState(action)
+        newPos = childGameState.getPacmanPosition() # Nueva posición de Pacman después de la acción
+        newFood = childGameState.getFood() # Estado de la comida en el nuevo estado
+        newGhostStates = childGameState.getGhostStates() # Estados de los fantasmas en el nuevo estado
+        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates] # Tiempo restante de miedo de los fantasmas
+
+        # Inicializa la puntuación del estado sucesor
         score = childGameState.getScore()
 
         # Calcular la distancia a la comida más cercana
